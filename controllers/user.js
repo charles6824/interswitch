@@ -3,8 +3,9 @@ import { decryptData } from "../utils/decrypt";
 import User from "../models/user";
 import bcrypt from "bcryptjs";
 import generateToken from "../utils/generateToken";
-import randomstring from "randomstring"
+import randomstring from "randomstring";
 import Account from "../models/account";
+import logActivity from "../utils/logActivity";
 
 const registerUser = asyncHandler(async (req, res) => {
 	try {
@@ -39,28 +40,47 @@ const registerUser = asyncHandler(async (req, res) => {
 					existingAccount = await Account.findOne({ accountNumber });
 				} while (existingAccount);
 
-        const newAccount = new Account({
-          user: saveUser._id,
-          currency: formData.currency ? formData.currency : "NGN",
-          accountNumber
-        })
+				const newAccount = new Account({
+					user: saveUser._id,
+					currency: formData.currency ? formData.currency : "NGN",
+					accountNumber,
+				});
 
-        const saveAccount = await newAccount.save()
+				const saveAccount = await newAccount.save();
 
-        await User.findByIdAndUpdate(saveUser._id, {accountNumber: accountNumber}, {new: true, useFindAndModify: false})
+				await User.findByIdAndUpdate(
+					saveUser._id,
+					{ accountNumber: accountNumber },
+					{ new: true, useFindAndModify: false }
+				);
 
-        const response = {
-          accountDetails: saveAccount,
-          userDetails: saveUser
-        }
+				const response = {
+					accountDetails: saveAccount,
+					userDetails: saveUser,
+				};
+				const currentDate = new Date();
+				logActivity(
+					saveUser._id,
+					"Account Creation",
+					currentDate,
+					"successful",
+					"Account Creation initiated Successfully"
+				);
 
 				res.json({
 					status: true,
 					message: "User created successfully",
 					data: response,
 				});
-
 			} else {
+				const currentDate = new Date();
+				logActivity(
+					saveUser._id,
+					"Account Creation",
+					currentDate,
+					"failed",
+					"Account Creation Failed"
+				);
 				res.json({
 					status: false,
 					message: "unable to create User, please contact Admin",
@@ -78,13 +98,13 @@ const authUser = asyncHandler(async (req, res) => {
 		const decryptedPayload = decryptData(req.body.payload);
 		const { formData } = decryptedPayload;
 
-		const user = await User.findOne({ 
-  $or: [
-    { email: formData.email },
-    { userName: formData.userName },
-    { accountNumber: formData.accountNumber }
-  ] 
-});
+		const user = await User.findOne({
+			$or: [
+				{ email: formData.email },
+				{ userName: formData.userName },
+				{ accountNumber: formData.accountNumber },
+			],
+		});
 
 		if (!user) {
 			return res
@@ -118,12 +138,31 @@ const authUser = asyncHandler(async (req, res) => {
 				accountDetails,
 			};
 
+			const currentDate = new Date();
+
+			logActivity(
+				user._id,
+				"Login",
+				currentDate,
+				"successful",
+				"Login initiated Successfully"
+			);
+
 			res.json({ status: true, message: "Login Successful", data: response });
 		} else {
+			const currentDate = new Date();
+			logActivity(
+				user._id,
+				"Login",
+				currentDate,
+				"failed",
+				"Login initiation failed"
+			);
+			res.json({ status: false, message: "Wrong Credentials", data: null });
 		}
 	} catch (err) {
 		res.status(500).json({ status: false, message: err.message });
 	}
 });
 
-export { registerUser };
+export { registerUser, authUser };
