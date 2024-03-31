@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import path from "path";
 import connectDB from "./database/db.js";
 import { errorHandler, notFound } from "./middleware/errorMiddleware.js";
+import userRoute from "./routes/user.js"
 
 dotenv.config();
 const __dirname = path.resolve();
@@ -21,6 +22,7 @@ app.use("/", (req, res) => {
 });
 
 app.use("/uploads", express.static(path.join(__dirname, "/uploads")));
+app.use("/api/users", userRoute)
 
 app.use(notFound);
 app.use(errorHandler);

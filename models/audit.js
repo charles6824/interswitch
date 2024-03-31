@@ -9,7 +9,7 @@ const auditSchema = mongoose.Schema(
 		activity: { type: mongoose.Schema.Types.Mixed, required: true },
 	},
 	{
-		timestamps: true,
+		timestamps: true, 
 	}
 );
 

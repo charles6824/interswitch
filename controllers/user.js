@@ -1,11 +1,11 @@
 import asyncHandler from "express-async-handler";
-import { decryptData } from "../utils/decrypt";
-import User from "../models/user";
+import { decryptData } from "../utils/decrypt.js";
+import User from "../models/user.js";
 import bcrypt from "bcryptjs";
-import generateToken from "../utils/generateToken";
+import generateToken from "../utils/generateToken.js";
 import randomstring from "randomstring";
-import Account from "../models/account";
-import logActivity from "../utils/logActivity";
+import Account from "../models/account.js";
+import logActivity from "../utils/logActivity.js";
 
 const registerUser = asyncHandler(async (req, res) => {
 	try {

@@ -1,4 +1,4 @@
-import Audit from "../models/audit";
+import Audit from "../models/audit.js";
 
 
 const logActivity = async(user, logName, date, status, activity) => {
