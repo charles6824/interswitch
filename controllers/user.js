@@ -1,5 +1,6 @@
 import asyncHandler from "express-async-handler";
 import { decryptData } from "../utils/decrypt.js";
+import { encryptData } from "../utils/encrypt.js"
 import User from "../models/user.js";
 import bcrypt from "bcryptjs";
 import generateToken from "../utils/generateToken.js";
@@ -10,7 +11,8 @@ import logActivity from "../utils/logActivity.js";
 const registerUser = asyncHandler(async (req, res) => {
 	try {
 		const decryptedPayload = decryptData(req.body.payload);
-		const { formData } = decryptedPayload;
+		
+		const formData = decryptedPayload;
 
 		const userExist = await User.findOne({ email: formData.email });
 		if (userExist) {
@@ -24,7 +26,7 @@ const registerUser = asyncHandler(async (req, res) => {
 				mobile: formData.mobile,
 			});
 
-			const saveUser = await newUser.save();
+			const saveUser = await newUser.save(); 
 			if (saveUser) {
 				let accountNumber;
 				let existingAccount;
@@ -96,7 +98,7 @@ const registerUser = asyncHandler(async (req, res) => {
 const authUser = asyncHandler(async (req, res) => {
 	try {
 		const decryptedPayload = decryptData(req.body.payload);
-		const { formData } = decryptedPayload;
+		const formData = decryptedPayload;
 
 		const user = await User.findOne({
 			$or: [
@@ -165,4 +167,25 @@ const authUser = asyncHandler(async (req, res) => {
 	}
 });
 
-export { registerUser, authUser };
+const decryptResponse = asyncHandler(async(req, res) => {
+  try {
+    const {data}  = req.body;
+    const dData = await decryptData(data)
+    res.json({encryptedPayload :dData});
+  } catch (error) {
+    throw new Error(err) 
+  }
+})
+
+const encryptResponse = asyncHandler(async(req, res) => {
+  try {
+    const {formData}  = req.body;
+    const dData = await encryptData(formData)
+    res.json({data:dData});
+  } catch (error) {
+    throw new Error(err)
+  }
+})
+
+
+export { registerUser, authUser, decryptResponse, encryptResponse };

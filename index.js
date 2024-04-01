@@ -17,12 +17,12 @@ app.use(cors());
 
 app.use(express.urlencoded({ extended: false }));
 
-app.use("/", (req, res) => {
+app.use("/test", (req, res) => {
 	res.send("Server running successfully");
 });
 
-app.use("/uploads", express.static(path.join(__dirname, "/uploads")));
 app.use("/api/users", userRoute)
+app.use("/uploads", express.static(path.join(__dirname, "/uploads")));
 
 app.use(notFound);
 app.use(errorHandler);
