@@ -132,7 +132,7 @@ const authUser = asyncHandler(async (req, res) => {
 				lastLogin: user.lastLogin[user.lastLogin.length - 1],
 			};
 
-			const accountDetails = await Account.findById(user._id);
+			const accountDetails = await Account.findOne({user: user._id});
 
 			const response = {
 				token: generateToken(user._id),
